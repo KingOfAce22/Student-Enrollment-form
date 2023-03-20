@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Student Enrollment form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Student Enrollment</h2>
+        <form id="studentForm" method="post">
+            <div class="form-group">
+                <span><label for="rollno">Roll No:</label> <label id="rollnoId">
+                    </label></span>
+                <input type="text" class="form-control" name="rollno" id="rollno" placeholder="Enter roll number"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="Name">Full Name:</label>
+                <input type="text" class="form-control" id="Name" placeholder="Enter Full Name" name="Name">
+            </div>
+            <div class="form-group">
+                <label for="class">Class:</label>
+                <input type="text" class="form-control" id="class" placeholder="Enter Class(in numbers)" name="class">
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="textArea" class="form-control" id="address" placeholder="Enter Address" name="address">
+            </div>
+            <div class="form-group">
+                <label for="enrolment">Enrollment date:</label>
+                <input type="date" class="form-control" id="enrolment" placeholder="Enter Enrollment Date"
+                    name="enrolment">
+            </div>
+            <input type="button" class="btn btn-primary" id="empSave" value="Save" onclick="saveEmployee();">
+            <input type="button" class="btn btn-primary" id="empSave" value="reset" onclick="resetForm();">
+        </form>
+    </div>
+
+    <script>
+        $("#rollno").focus();
+        function validateAndGetFormData() {
+            var rollnoVar = $("#rollno").val();
+            if (rollnoVar === "") {
+                alert("Roll Number Required Value");
+                $("#rollno").focus();
+                return "";
+            }
+            var NameVar = $("#Name").val();
+            if (NameVar === "") {
+                alert("Full Name is Required Value");
+                $("#Name").focus();
+                return "";
+            }
+            var ClassVar = $("#class").val();
+            if (ClassVar === "") {
+                alert("class is Required Value");
+                $("#class").focus();
+                return "";
+            }
+            var addressVar = $("#address").val();
+            if (addressVar === "") {
+                alert("Address Required Value");
+                $("#address").focus();
+                return "";
+            }
+            var enrolmentVar = $("#enrolment").val();
+            if (enrolmentVar === "") {
+                alert("enrollment Number Required Value");
+                $("#enrolment").focus();
+                return "";
+            }
+            var jsonStrObj = {
+                rollno: rollnoVar,
+                Name: NameVar,
+                class: ClassVar,
+                address: addressVar,
+                enrolment: enrolmentVar,
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        // This method is used to create PUT Json request.
+        function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n"
+                + "\"token\" : \""
+                + connToken
+                + "\","
+                + "\"dbName\": \""
+                + dbName
+                + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                + "\"rel\" : \""
+                + relName + "\","
+                + "\"jsonStr\": \n"
+                + jsonObj
+                + "\n"
+                + "}";
+            return putRequest;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+        function resetForm() {
+            $("#rollno").val("")
+            $("#Name").val("");
+            $("#class").val("");
+            $("#address").val("");
+            $("#enrolment").val("");
+            $("#rollno").focus();
+        }
+        function saveEmployee() {
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var putReqStr = createPUTRequest("90932944|-31949275172982069|90947773",
+                jsonStr, "STUDENT", "School-Rel");
+            alert(putReqStr);
+            jQuery.ajaxSetup({ async: false });
+            var resultObj = executeCommand(putReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            jQuery.ajaxSetup({ async: true });
+            alert(JSON.stringify(resultObj));
+            resetForm();
+        }
+    </script
+
+    </body>
+    </html>
